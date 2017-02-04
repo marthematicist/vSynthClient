@@ -70,7 +70,7 @@ void draw() {
     if( channelStatus[i] ) {
       fill( red(channelColor[i]) , green(channelColor[i]), blue(channelColor[i]) , 10 );
       PVector offset = PVector.random2D();
-      offset.mult(1);
+      offset.mult(3);
       noStroke();
       rect( channelPosition[i].x + offset.x , channelPosition[i].y + offset.y , channelSize[i] , channelSize[i] );
       noFill();
@@ -83,4 +83,30 @@ void draw() {
   }
   
   
+}
+
+
+void clientEvent(Client someClient) {
+  int numBytes = c.available();
+  if ( numBytes > 0 ) {
+    byte[] byteBuffer = new byte[16];
+    c.readBytes( byteBuffer );
+    for( int i = 0 ; i < numBytes ; i++ ) {
+      int d = int( byteBuffer[i] ) ;
+      int ch = d % 16;
+      int cmd = ( d - ch ) / 16;
+      boolean on = false;
+      if( cmd == 1 ) { 
+        on = false; 
+        channelStatus[ch] = false;
+      }
+      if( cmd == 2 ) { 
+        on = true; 
+        channelStatus[ch] = true;
+      }
+      Event e = new Event( "onOff" , on , 0 , ch );
+      println( "cmd: " + cmd + "    ch: " + ch + "      " + e.print() );
+    }
+  }
+
 }
